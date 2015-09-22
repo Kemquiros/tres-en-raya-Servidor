@@ -140,7 +140,11 @@ public class ServidorHilo implements Runnable{
             }
         }
         
-        return G[0][0] == n && G[1][1] == n && G[2][2] == n;
+        if (G[0][0] == n && G[1][1] == n && G[2][2] == n){
+            return true;
+        }
+        
+       return G[0][2] == n && G[1][1] == n && G[2][0] == n;
     }
     
     //Funcion comprueba si el tablero ya esta lleno
