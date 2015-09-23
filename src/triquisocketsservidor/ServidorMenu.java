@@ -21,14 +21,14 @@ import javax.swing.JOptionPane;
  *
  * @author jedisson.tapias
  */
-public class PantallaServidor extends javax.swing.JFrame {
+public class ServidorMenu extends javax.swing.JFrame {
    
-   
+ 
     private final static String newline = "\n";
     int puerto;
-    TriquiSocketsServidor servidor;
-    
-    public PantallaServidor() {
+    SocketServidor servidor;
+    Thread hiloServidor;
+    public ServidorMenu() {
         this.setUndecorated(true);
         
         initComponents();
@@ -47,7 +47,7 @@ public class PantallaServidor extends javax.swing.JFrame {
         jPanel1.setBackground(new Color(100,0,0,125));
         jLabel4.setBackground(new Color(125,0,0,200));
         jLabel5.setBackground(new Color(125,0,0,200));
-        jLabel9.setBackground(new Color(125,0,0,200));
+        jLabelIniciar.setBackground(new Color(125,0,0,200));
         
         //System.out.println(jLabel1.getForeground().toString());
         jLabel2.setBackground(new Color(0,0,0,0));
@@ -69,7 +69,7 @@ public class PantallaServidor extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jTextPuerto = new javax.swing.JTextField();
-        jLabel9 = new javax.swing.JLabel();
+        jLabelIniciar = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
@@ -116,19 +116,19 @@ public class PantallaServidor extends javax.swing.JFrame {
         jTextPuerto.setFont(new java.awt.Font("Purisa", 0, 18)); // NOI18N
         jTextPuerto.setHorizontalAlignment(javax.swing.JTextField.CENTER);
 
-        jLabel9.setFont(new java.awt.Font("Purisa", 1, 18)); // NOI18N
-        jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel9.setText("Iniciar...");
-        jLabel9.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jLabel9.setOpaque(true);
-        jLabel9.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseMoved(java.awt.event.MouseEvent evt) {
-                jLabel9MouseMoved(evt);
+        jLabelIniciar.setFont(new java.awt.Font("Purisa", 1, 18)); // NOI18N
+        jLabelIniciar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabelIniciar.setText("Iniciar...");
+        jLabelIniciar.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jLabelIniciar.setOpaque(true);
+        jLabelIniciar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jLabelIniciarMouseReleased(evt);
             }
         });
-        jLabel9.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                jLabel9MouseReleased(evt);
+        jLabelIniciar.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                jLabelIniciarMouseMoved(evt);
             }
         });
 
@@ -181,7 +181,7 @@ public class PantallaServidor extends javax.swing.JFrame {
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabelIniciar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -201,7 +201,7 @@ public class PantallaServidor extends javax.swing.JFrame {
                 .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
+                    .addComponent(jLabelIniciar)
                     .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -389,50 +389,54 @@ public class PantallaServidor extends javax.swing.JFrame {
         jLabel5.setBackground(new Color(125,0,0,200));
     }//GEN-LAST:event_jLabel8MouseMoved
 
-    private void jLabel9MouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseMoved
-        jLabel9.setBackground(new Color(135,30,30,200));
-    }//GEN-LAST:event_jLabel9MouseMoved
+    private void jLabelIniciarMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabelIniciarMouseMoved
+        jLabelIniciar.setBackground(new Color(135,30,30,200));
+    }//GEN-LAST:event_jLabelIniciarMouseMoved
 
     private void jLabel10MouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel10MouseMoved
-        jLabel9.setBackground(new Color(125,0,0,200));
+        jLabelIniciar.setBackground(new Color(125,0,0,200));
     }//GEN-LAST:event_jLabel10MouseMoved
 
     private void jLabel12MouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel12MouseMoved
-        jLabel9.setBackground(new Color(125,0,0,200));
+        jLabelIniciar.setBackground(new Color(125,0,0,200));
     }//GEN-LAST:event_jLabel12MouseMoved
 
     private void jLabel11MouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseMoved
-        jLabel9.setBackground(new Color(125,0,0,200));
+        jLabelIniciar.setBackground(new Color(125,0,0,200));
     }//GEN-LAST:event_jLabel11MouseMoved
 
     private void jLabel13MouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel13MouseMoved
-       jLabel9.setBackground(new Color(125,0,0,200));
+       jLabelIniciar.setBackground(new Color(125,0,0,200));
     }//GEN-LAST:event_jLabel13MouseMoved
 
-    private void jLabel9MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseReleased
-        String cadena =jTextPuerto.getText();
-        if(cadena.isEmpty()){
-            JOptionPane.showMessageDialog(rootPane, "El puerto no puede ser vacio", "Error", 2);
-            return;
-        }
-        try{
-            puerto= Integer.parseInt(cadena);
-            if(puerto>65535||puerto<=0){
-                JOptionPane.showMessageDialog(rootPane, "Puerto inalcanzable", "Error", 2);
+    private void jLabelIniciarMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabelIniciarMouseReleased
+        
+            
+        
+            String cadena =jTextPuerto.getText();
+            if(cadena.isEmpty()){
+                JOptionPane.showMessageDialog(rootPane, "El puerto no puede ser vacio", "Error", 2);
+                return;
+            }
+            try{
+                puerto= Integer.parseInt(cadena);
+                if(puerto>65535||puerto<=0){
+                    JOptionPane.showMessageDialog(rootPane, "Puerto inalcanzable", "Error", 2);
+                    jTextPuerto.setText("");
+                    return;
+                }
+                //-----------------
+                //Lanza el servidor
+                lanzarServidor();
+
+                //------
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(rootPane, "El puerto presenta error", "Error", 2);
                 jTextPuerto.setText("");
                 return;
             }
-            //-----------------
-            //Lanza el servidor
-            lanzarServidor();
-            
-            //------
-        }catch(Exception e){
-            JOptionPane.showMessageDialog(rootPane, "El puerto presenta error", "Error", 2);
-            jTextPuerto.setText("");
-            return;
-        }
-    }//GEN-LAST:event_jLabel9MouseReleased
+       
+    }//GEN-LAST:event_jLabelIniciarMouseReleased
 
     private void jLabel4MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MousePressed
         Calendar calendario = Calendar.getInstance();
@@ -447,11 +451,17 @@ public class PantallaServidor extends javax.swing.JFrame {
     }
     
     private void lanzarServidor() {
-        servidor= new TriquiSocketsServidor(puerto,this);
-        Thread hiloServidor = new Thread(servidor);
-        hiloServidor.start();
-        //servidor.escuchar();
+        try {
+            servidor= new SocketServidor(puerto,this);
+            hiloServidor = new Thread(servidor);
+            hiloServidor.start();
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(rootPane, "Error: "+e.getMessage(), "Error", 2);
+        }               
     }
+    
+    
     
     /**
      * @param args the command line arguments
@@ -470,20 +480,21 @@ public class PantallaServidor extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(PantallaServidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServidorMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(PantallaServidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServidorMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(PantallaServidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServidorMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(PantallaServidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServidorMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                    new PantallaServidor().setVisible(true); 
+                    new ServidorMenu().setVisible(true); 
             }
         });
        
@@ -503,7 +514,7 @@ public class PantallaServidor extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabelIniciar;
     private javax.swing.JPanel jPanel;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
