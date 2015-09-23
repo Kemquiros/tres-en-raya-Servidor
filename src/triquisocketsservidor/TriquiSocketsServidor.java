@@ -12,87 +12,66 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author usuario
+ * @author esteban.catanoe
  */
-public class TriquiSocketsServidor implements Runnable{
+public class TriquiSocketsServidor implements Runnable {
 
-   
-
-    
-    //Inicializamos el puerto
-    private int puerto ;
-    //Numero maximo de conexiones (el tictactoe es un juego para 2)
+    private int puerto = 3020;
     private final int noConexiones = 2;
-    //Creamos una lista de sockets para guardar el socket de cada jugador
     private final LinkedList<Socket> usuarios = new LinkedList<>();
-    //Variable para controlar el turno de cada jugador
     private final Boolean turno = true;
-    //Matriz donde se guardan los movimientos 
-    private final int G[][] = new int[3][3];
-    //Numero de veces que se juega...para controlar las X y O
+    private final int matriz[][] = new int[3][3];
     private int turnos = 1;
     PantallaServidor pantallaServidor;
 
-    
-    public TriquiSocketsServidor(int _puerto,PantallaServidor _pantallaServidor) {
-        this.puerto= _puerto;
-        this.pantallaServidor=_pantallaServidor;
+    public TriquiSocketsServidor(int _puerto, PantallaServidor _pantallaServidor) {
+        this.puerto = _puerto;
+        this.pantallaServidor = _pantallaServidor;
     }
     /*
-    public static void main(String[] args) {
-        // TODO code application logic here
-        TriquiSocketsServidor servidor= new TriquiSocketsServidor();
-        servidor.escuchar();
-    }
-    */
-    
-     //Funcion para que el servidor empieze a recibir conexiones de clientes
-    
+     public static void main(String[] args) {
+     // TODO code application logic here
+     TriquiSocketsServidor servidor= new TriquiSocketsServidor();
+     servidor.escuchar();
+     }
+     */
 
+     //Funcion para que el servidor empieze a recibir conexiones de clientes
     //El servidor escucha por posibles clientes
     @Override
     public void run() {
         try {
-            //Inicializamos la matriz del juego con -1
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    G[i][j] = -1;
+                    matriz[i][j] = -1;
                 }
             }
-            //Creamos el socket servidor
-            ServerSocket servidor=null;
-            try{
-                servidor= new ServerSocket(puerto,noConexiones);
-            }
-            catch(Exception e){
-                
-                JOptionPane.showMessageDialog(null, "El servidor no puede iniciar:"+e.getMessage());
+            
+            ServerSocket servidor = null;
+            try {
+                servidor = new ServerSocket(puerto, noConexiones);
+            } catch (Exception e) {
+
+                JOptionPane.showMessageDialog(null, "El servidor no puede iniciar:" + e.getMessage());
                 System.exit(0);
             }
-             
-            
-            pantallaServidor.enviarMensaje("Escuchando en ip:"+servidor.getInetAddress()+" puerto:"+servidor.getLocalPort());
+
+            pantallaServidor.enviarMensaje("Escuchando en ip:" + servidor.getInetAddress() + " puerto:" + servidor.getLocalPort());
             pantallaServidor.enviarMensaje("Esperando jugadores...");
-            
-            while(true){
-                    //Cuando un jugador se conecte guardamos el socket en nuestra lista
-                    Socket cliente = servidor.accept();
-                    pantallaServidor.enviarMensaje("Se conecta ip:"+cliente.getInetAddress()+" puerto:"+cliente.getPort());
-                    //Se agrega el socket a la lista
-                    usuarios.add(cliente);
-                    //Se le genera un turno X o O 
-                    int xo = turnos % 2 == 0 ? 1 : 0;
-                    
-                    
+
+            while (true) {
+                Socket cliente = servidor.accept();
+                pantallaServidor.enviarMensaje("Se conecta ip:" + cliente.getInetAddress() + " puerto:" + cliente.getPort());
+                usuarios.add(cliente);
+                    int fig = turnos % 2 == 0 ? 1 : 0;
                     turnos++;
-                    //Instanciamos un hilo que estara atendiendo al cliente y lo ponemos a escuchar
-                    Runnable  run = new ServidorHilo(cliente,usuarios,xo,G);
+                    Runnable  run = new ServidorHilo(cliente,usuarios,fig,matriz);
                     Thread hilo = new Thread(run);
                     hilo.start();
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
 }

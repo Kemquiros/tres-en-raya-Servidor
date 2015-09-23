@@ -15,156 +15,139 @@ import java.util.LinkedList;
  * @author usuario
  */
 public class ServidorHilo implements Runnable{
-    //Declaramos las variables que utiliza el hilo para estar recibiendo y mandando mensajes
     private final Socket socket;
     private DataOutputStream out;
     private DataInputStream in;
-    //Varible para guardar que le toco al jugador X o O
-    private final int XO;
-    //Matriz del juego
-    private final int G[][];
-    //Turno
+    private final int figura;
+    private final int matriz[][];
     private boolean turno;
-    //Lista de los usuarios conectados al servidor
-    private LinkedList<Socket> usuarios = new LinkedList<>();
+    private LinkedList<Socket> listaUsuarios = new LinkedList<>();
 
-    ServidorHilo(Socket cliente, LinkedList<Socket> usuarios, int xo, int[][] G) {
+    ServidorHilo(Socket cliente, LinkedList<Socket> usuarios, int xo, int[][] ma) {
         this.socket = cliente;
-        this.usuarios = usuarios;
-        this.XO = xo;
-        this.G = G;
+        this.listaUsuarios = usuarios;
+        this.figura = xo;
+        this.matriz = ma;
     }
 
     @Override
     public void run() {
         try {
-            //Inicializamos los canales de comunicacion y mandamos el turno a cada jugador
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-            turno = XO == 1;
+            turno = figura == 1;
             String msg = "";
-            msg += "JUEGAS: " + (turno ? "X;":"O;");
+            msg += "JUEGAS: " + (turno ? "X;" : "O;");
             msg += turno;
             out.writeUTF(msg);
-            
-            
-            //Ciclo infinito que estara escuchando por los movimientos de cada jugador
-            //Cada que un jugador pone una X o O viene aca y le dice al otro jugador que es su turno
-            while(true){
-                //Leer los datos que se mandan cuando se selecciona un boton
+
+            while (true) {
                 String recibidos = in.readUTF();
-                String recibido [] = recibidos.split(";");
-                
-                /*
-                    recibido[0] : fila del tablero
-                    recibido[1] : columna del tablero
-                
-                */
-                
-                int f = Integer.parseInt(recibido[0]);
-                int c = Integer.parseInt(recibido[1]);
-                /*
-                    Se guarda la jugada en la matriz
-                    X : 1
-                    O : 0
-                
-                */
-                G[f][c] = XO;
-                
-                /*
-                Se forma una cadena que se enviara a los jugadores, que lleva informacion del movimiento que se 
-                acaba de hacer
-                */
-                String cad = "";
-                cad += XO+";";
-                cad += f+";";
-                cad += c+";";
-                
-                /*
-                Se comprueba si alguien de los jugadores gano
-                y si el tablero ya se lleno... En los dos casos se notifica a los jugadores para empezar de nuevo la partida
-                */
-                boolean ganador = gano(XO);
-                boolean completo = lleno();
-                
-                if(!ganador && !completo){
-                    cad += "NADIE";
-                }
-                else if(!ganador && completo){
-                    cad += "EMPATE";
-                }
-                else if(ganador){
+                if (recibidos.equals("Reiniciar")) {
                     vaciarMatriz();
-                    cad += XO == 1 ? "X":"O";
-                }
+                    for (Socket usuario : listaUsuarios) {
+                        out = new DataOutputStream(usuario.getOutputStream());
+                        out.writeUTF("Reiniciar");
+                    }
+                } else {
+                    String recibido[] = recibidos.split(";");
+
+                    /*
+                     recibido[0] : fila del tablero
+                     recibido[1] : columna del tablero
                 
-                
-                
-                for (Socket usuario : usuarios) {
-                    out = new DataOutputStream(usuario.getOutputStream());
-                    out.writeUTF(cad);
+                     */
+                    int fila = Integer.parseInt(recibido[0]);
+                    int columna = Integer.parseInt(recibido[1]);
+                    
+                    
+                    /*
+                     X : 1
+                     O : 0
+                     */
+                    matriz[fila][columna] = figura;
+
+                    String cad = "";
+                    cad += figura + ";";
+                    cad += fila + ";";
+                    cad += columna + ";";
+
+                    boolean ganador = comprobarGanador(figura);
+                    boolean completo = comprobarTableroCompleto();
+
+                    if (!ganador && !completo) {
+                        cad += "NINGUNO";
+                    } else if (!ganador && completo) {
+                        cad += "EMPATE";
+                    } else if (ganador) {
+                        vaciarMatriz();
+                        cad += figura == 1 ? "X" : "O";
+                    }
+
+                    for (Socket usuario : listaUsuarios) {
+                        out = new DataOutputStream(usuario.getOutputStream());
+                        out.writeUTF(cad);
+                    }
                 }
             }
         } catch (Exception e) {
-            
-            //Si ocurre un excepcion lo mas seguro es que sea por que algun jugador se desconecto asi que lo quitamos de la lista de conectados
-            for (int i = 0; i < usuarios.size(); i++) {
-                if(usuarios.get(i) == socket){
-                    usuarios.remove(i);
+
+           for (int i = 0; i < listaUsuarios.size(); i++) {
+                if (listaUsuarios.get(i) == socket) {
+                    listaUsuarios.remove(i);
                     break;
-                } 
+                }
             }
             vaciarMatriz();
         }
     }
     
-    //Funcion comprueba si algun jugador ha ganado el juego
-    public boolean gano(int n){
+    public boolean comprobarGanador(int n) {
         for (int i = 0; i < 3; i++) {
             boolean gano = true;
             for (int j = 0; j < 3; j++) {
-                 gano = gano && (G[i][j] == n); 
+                gano = gano && (matriz[i][j] == n);
             }
-            if(gano){
+            if (gano) {
                 return true;
             }
         }
-        
+
         for (int i = 0; i < 3; i++) {
             boolean gano = true;
             for (int j = 0; j < 3; j++) {
-                 gano = gano && (G[j][i] == n); 
+                gano = gano && (matriz[j][i] == n);
             }
-            if(gano){
+            if (gano) {
                 return true;
             }
         }
-        
-        if (G[0][0] == n && G[1][1] == n && G[2][2] == n){
+
+        if (matriz[0][0] == n && matriz[1][1] == n && matriz[2][2] == n) {
             return true;
         }
-        
-       return G[0][2] == n && G[1][1] == n && G[2][0] == n;
+
+        return matriz[0][2] == n && matriz[1][1] == n && matriz[2][0] == n;
     }
     
-    //Funcion comprueba si el tablero ya esta lleno
-    public boolean lleno(){
+    public boolean comprobarTableroCompleto() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                if(G[i][j] == -1)return false;
+                if (matriz[i][j] == -1) {
+                    return false;
+                }
             }
         }
-        
+
         vaciarMatriz();
         return true;
     }
-    
-    //Funcion para reiniciar la matriz del juego
-    public void vaciarMatriz(){
+
+    public void vaciarMatriz() {
         for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    G[i][j] = -1;
-                }
+            for (int j = 0; j < 3; j++) {
+                matriz[i][j] = -1;
+            }
         }
     }
     
