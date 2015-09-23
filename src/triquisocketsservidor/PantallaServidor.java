@@ -22,12 +22,11 @@ import javax.swing.JOptionPane;
  * @author jedisson.tapias
  */
 public class PantallaServidor extends javax.swing.JFrame {
-    Calendar calendario = Calendar.getInstance();
-    boolean esSalir=false;
-    Salir1 salir1;
-    Salir2 salir2 ;
+   
+   
     private final static String newline = "\n";
     int puerto;
+    TriquiSocketsServidor servidor;
     
     public PantallaServidor() {
         this.setUndecorated(true);
@@ -108,6 +107,11 @@ public class PantallaServidor extends javax.swing.JFrame {
         jLabel4.setText("Puerto");
         jLabel4.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jLabel4.setOpaque(true);
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jLabel4MousePressed(evt);
+            }
+        });
 
         jTextPuerto.setFont(new java.awt.Font("Purisa", 0, 18)); // NOI18N
         jTextPuerto.setHorizontalAlignment(javax.swing.JTextField.CENTER);
@@ -420,8 +424,8 @@ public class PantallaServidor extends javax.swing.JFrame {
             }
             //-----------------
             //Lanza el servidor
-            TriquiSocketsServidor servidor= new TriquiSocketsServidor(puerto,this);
-            servidor.escuchar();
+            lanzarServidor();
+            
             //------
         }catch(Exception e){
             JOptionPane.showMessageDialog(rootPane, "El puerto presenta error", "Error", 2);
@@ -430,10 +434,25 @@ public class PantallaServidor extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jLabel9MouseReleased
 
+    private void jLabel4MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MousePressed
+        Calendar calendario = Calendar.getInstance();
+        String fecha=calendario.getTime().toString();
+        areaTexto.append(fecha+">>"+"Prueba"+newline);
+    }//GEN-LAST:event_jLabel4MousePressed
+
     void enviarMensaje(String mensaje){
+        Calendar calendario = Calendar.getInstance();
         String fecha=calendario.getTime().toString();
         areaTexto.append(fecha+">>"+mensaje+newline);
     }
+    
+    private void lanzarServidor() {
+        servidor= new TriquiSocketsServidor(puerto,this);
+        Thread hiloServidor = new Thread(servidor);
+        hiloServidor.start();
+        //servidor.escuchar();
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -490,4 +509,6 @@ public class PantallaServidor extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextPuerto;
     // End of variables declaration//GEN-END:variables
+
+    
 }

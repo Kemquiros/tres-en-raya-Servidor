@@ -14,7 +14,7 @@ import javax.swing.JOptionPane;
  *
  * @author usuario
  */
-public class TriquiSocketsServidor {
+public class TriquiSocketsServidor implements Runnable{
 
    
 
@@ -47,7 +47,11 @@ public class TriquiSocketsServidor {
     */
     
      //Funcion para que el servidor empieze a recibir conexiones de clientes
-    public void escuchar(){
+    
+
+    //El servidor escucha por posibles clientes
+    @Override
+    public void run() {
         try {
             //Inicializamos la matriz del juego con -1
             for (int i = 0; i < 3; i++) {
@@ -66,16 +70,20 @@ public class TriquiSocketsServidor {
                 System.exit(0);
             }
              
-            //Ciclo infinito para estar escuchando por nuevos jugadores
             
-            pantallaServidor.enviarMensaje("Esperando jugadores");
+            pantallaServidor.enviarMensaje("Escuchando en ip:"+servidor.getInetAddress()+" puerto:"+servidor.getLocalPort());
+            pantallaServidor.enviarMensaje("Esperando jugadores...");
+            
             while(true){
                     //Cuando un jugador se conecte guardamos el socket en nuestra lista
                     Socket cliente = servidor.accept();
+                    pantallaServidor.enviarMensaje("Se conecta ip:"+cliente.getInetAddress()+" puerto:"+cliente.getPort());
                     //Se agrega el socket a la lista
                     usuarios.add(cliente);
                     //Se le genera un turno X o O 
                     int xo = turnos % 2 == 0 ? 1 : 0;
+                    
+                    
                     turnos++;
                     //Instanciamos un hilo que estara atendiendo al cliente y lo ponemos a escuchar
                     Runnable  run = new ServidorHilo(cliente,usuarios,xo,G);
