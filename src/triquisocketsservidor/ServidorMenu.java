@@ -36,7 +36,7 @@ public class ServidorMenu extends javax.swing.JFrame {
         Dimension d=Toolkit.getDefaultToolkit().getScreenSize();
         this.setSize((int) d.getWidth() , ((int) d.getHeight()));
         jPanel.setSize((int) d.getWidth() , ((int) d.getHeight())-100);
-        
+        jTextPuerto.setText("1234");
         Fondo fondo = new Fondo(jPanel);
    
         

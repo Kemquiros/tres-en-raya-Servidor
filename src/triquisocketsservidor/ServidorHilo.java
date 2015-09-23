@@ -94,7 +94,7 @@ public class ServidorHilo implements Runnable{
             //Encuentra el indice
             System.out.println("Compara "+letras[i]+" con "+c);
             if(letras[i]==c){
-                System.out.print("  Encuentra: "+letras[i]);
+                System.out.println(">>  Encuentra: "+letras[i]);
                 return i;
             }
         }
@@ -161,8 +161,10 @@ public class ServidorHilo implements Runnable{
       return primo;
     }
     
-    String desencriptacion(int clave, String mensaje){
+  
         
+        String desencriptacion(int clave, String mensaje){
+      
         System.out.println("Ingresa a encriptar ServidorHilo mensaje:"+mensaje);
         mensaje=mensaje.toLowerCase();
         char[] m = mensaje.toCharArray();
@@ -184,10 +186,33 @@ public class ServidorHilo implements Runnable{
                }
                 System.out.print("  Indice busqueda: "+indice+" Caracter Busqueda: "+letras[indice]);
                 //Porque hay 36 caracteres
-               
-                int indice1=((indice-god)%letras.length);
-                System.out.println(" Nuevo indice: "+indice1+" Nuevo Caracter:"+letras[indice1]+" god:"+god+" i+g:"+(indice+god)+" leng:"+letras.length+" mod:" +((indice+god)%letras.length));
-                m[i]= letras[indice1]; 
+                try {
+                     int indice1=((indice+(letras.length-god))%letras.length);
+                     if(indice1<0){
+                         indice1=letras.length-indice1;
+                     }
+                     if(indice1>letras.length){
+                         indice1=indice1%letras.length;
+                     }
+                     System.out.println("Indice 1: "+indice1+"  tamaño letras: "+letras.length);
+                     try {
+                        System.out.println(" Nuevo indice: "+indice1+" Nuevo Caracter:"+letras[indice1]+" god:"+god+" i+g:"+(indice+god)+" leng:"+letras.length+" mod:" +((indice+god)%letras.length));
+                        
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(null, "Error mensaje: "+e.toString());
+                    }
+                     try {
+                        m[i]= letras[indice1];
+                    } catch (Exception e) {
+                         JOptionPane.showMessageDialog(null, "Ultimo Error: "+e.toString());
+                    }
+                    
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "nada que hacer"+e.toString());
+                    System.out.println(e.getMessage());
+                    System.out.println(e.toString());
+                }
+                
             }
             
         //}
@@ -198,6 +223,7 @@ public class ServidorHilo implements Runnable{
         }
         return new String(m);
     }
+    
     
     void iniciarTurnos(){
         if(Math.random()<0.5){
@@ -261,10 +287,13 @@ public class ServidorHilo implements Runnable{
                 if(turno){
                    
                     String recibidosA = inA.readUTF();
+                    System.out.println(">>>>>>>>>>");
+                    System.out.println("recibe turno de A");                    
+                    System.out.println(">>>>>>>>>>");
                     String[] recibidoA = recibidosA.split(";");
                     
                     //--Desencriptación
-                    
+                    //desencriptacion(clave, recibidoA[0]+";"+recibidoA[1]);
                     //--
                     
                     if (recibidoA.length==2) {
@@ -281,8 +310,10 @@ public class ServidorHilo implements Runnable{
                     }
                     else {//Flujo normal de juego
                         //String recibidoA[] = recibidosA.split(";");
+                        System.out.println(">>Encriptado:"+ recibidoA[0]+";"+recibidoA[1]);
                         recibidoA[0]=desencriptacion(Integer.parseInt(recibidoA[2]), recibidoA[0]);
                         recibidoA[1]=desencriptacion(Integer.parseInt(recibidoA[2]), recibidoA[1]);
+                        System.out.println(">>Desencriptado:"+ recibidoA[0]+";"+recibidoA[1]);
                         /*
                          recibido[0] : fila del tablero
                          recibido[1] : columna del tablero
