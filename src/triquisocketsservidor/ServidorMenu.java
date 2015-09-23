@@ -23,7 +23,7 @@ import javax.swing.JOptionPane;
  */
 public class ServidorMenu extends javax.swing.JFrame {
    
- 
+    
     private final static String newline = "\n";
     int puerto;
     SocketServidor servidor;
@@ -427,7 +427,10 @@ public class ServidorMenu extends javax.swing.JFrame {
                 }
                 //-----------------
                 //Lanza el servidor
+                System.out.println("Lanza el servidor");
                 lanzarServidor();
+                System.out.println("Lanza el servidor1");
+                
 
                 //------
             }catch(Exception e){
@@ -454,6 +457,7 @@ public class ServidorMenu extends javax.swing.JFrame {
         try {
             servidor= new SocketServidor(puerto,this);
             hiloServidor = new Thread(servidor);
+            System.out.println("Lanza el thread servidor");
             hiloServidor.start();
             
         } catch (Exception e) {

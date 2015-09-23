@@ -26,12 +26,14 @@ public class SocketServidor implements Runnable {
     private int turnos = 1;
     private ArrayList partidas;
     ServidorMenu pantallaServidor;
-    int[] primos = new int[1001];
-    String[] letras={"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9"};
+    int[] primos = new int[2000];
+    char[] letras={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9'};
 
     public SocketServidor(int _puerto, ServidorMenu _pantallaServidor) {
+        System.out.println("Construye el socket del servidor");
         this.puerto = _puerto;
         this.pantallaServidor = _pantallaServidor;
+        
         generarClaves();
     }
     
@@ -52,12 +54,12 @@ public class SocketServidor implements Runnable {
         try {
             
             
-            
+            System.out.println("Corre sin error el run del socket servidor");
             try {
                 servidor = new ServerSocket(puerto, noConexiones);
-                
+                System.out.println("El socket del servidor comienza");
             } catch (Exception e) {
-
+                System.out.println("El socket del servidor no puede comenzar");
                 JOptionPane.showMessageDialog(null, "El servidor no puede iniciar:" + e.getMessage());
                 return;
             }
@@ -103,9 +105,11 @@ public class SocketServidor implements Runnable {
         //Se calculan los 1000 primeros numeros primos
         int num=0;
         int i=2;
-        while(num<1000){
+        System.out.println("Generacion TOTAL de primos: ");
+        while(num<2000){
             if(esPrimo(i)){
                 primos[num]=i;
+                System.out.print(" "+i);
                 num++;
             }
             i++;

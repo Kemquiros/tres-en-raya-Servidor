@@ -8,6 +8,7 @@ package triquisocketsservidor;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import javax.swing.JOptionPane;
 
@@ -26,12 +27,18 @@ public class ServidorHilo implements Runnable{
     private int figuraB=-1;
     private final int matriz[][]=new int[3][3];
     private boolean turno;
-    private LinkedList<Socket> listaUsuarios = new LinkedList<>();
+    private char[] letras;
+    private int[] primos;
+    
+    
 
-    ServidorHilo(Socket usuarioA, Socket usuarioB,int[] _numeros,String[] _letras) {
+    ServidorHilo(Socket usuarioA, Socket usuarioB,int[] _numeros,char[] _letras) {
+        System.out.println("Constructor ServidorHilo");
         this.socketA = usuarioA;
         this.socketB = usuarioB;
         
+        this.letras=_letras;
+        this.primos=_numeros;
         //El orden de inicio es aleatorio
         
         iniciarTurnos();
@@ -40,6 +47,113 @@ public class ServidorHilo implements Runnable{
         //this.listaUsuarios = usuarios;
         //this.figura = xo;
         vaciarMatriz();
+    }
+    
+    //Encripta un mensaje con una clave
+    String encriptar(int clave, String mensaje){
+        System.out.println("Ingresa a encriptar ServidorHilo");
+        char[] m = mensaje.toCharArray();
+        System.out.println("Ingresa a Descomposición prima con clave:"+clave);
+        int god = descomposicionPrima(clave);
+        System.out.println("Clave: "+clave+"  DescomPrima: "+god);
+        for(int i=0;i<m.length;i++){
+            //El separador  lo deja intacto
+            if(m[i]!=';'){
+               int indice=buscarIndice(m[i]);
+                //Porque hay 36 caracteres
+                indice=(indice+god)%36;
+                m[i]= letras[indice]; 
+            }
+            
+        }
+        System.out.println("Sale de encriptar");
+        return m.toString();
+    }
+    
+    int buscarIndice(char c){        
+        for(int i=0;i<letras.length;i++){
+            //Encuentra el indice
+            if(letras[i]==c){
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    //Descomposicion en factores primos
+    int descomposicionPrima(int clave){
+        int sum=0;
+        int indice=0;
+        System.out.println(">>>Comienza itracion descomposicion prima:");
+        while(clave>1){
+            //Si es divisible entre el primo
+            //sumelo
+            System.out.println("Clave:"+clave+" Indice:"+indice+"  Primo:"+primos[indice]);
+            if(clave%primos[indice]==0){
+                sum+=primos[indice];
+                System.out.println("Clave:"+clave+" Indice:"+indice+"  Primo:"+primos[indice]);
+                clave=clave/primos[indice];
+                
+                
+            }
+            else{//De lo contrario pase al siguiente primo
+                System.out.print("  -FALSE");
+                indice++;
+            }            
+        }
+        return sum;
+    }
+    
+    //Genera numero aleatorio no primo
+    int generarClave(){
+        System.out.println("Ingresa a generarClave en servidorHilo");
+        int num=-1;
+        System.out.println("Generación de clave:");
+        while(num==-1){
+            System.out.print("  >Ingresa");
+            num=calcularNumeroAleatorioNoPrimo();
+            
+        }
+        System.out.println("Sale de generarClave en servidorHilo");
+        return num;
+    }
+    
+    int calcularNumeroAleatorioNoPrimo(){
+        int range = (1000 - 100) + 1;     
+        int num=(int)(Math.random() * range) + 100;
+        System.out.print(" >Ingresa a Numero Aleatorio:"+num+"< ");
+        if(!esPrimo(num)){
+            return num;
+        }
+        return -1;
+    }
+    
+    public static boolean esPrimo(int numero){
+      int contador = 2;
+      boolean primo=true;
+      while ((primo) && (contador!=numero)){
+        if (numero % contador == 0)
+          primo = false;
+        contador++;
+      }
+        System.out.println("Retorna primo:"+primo);
+      return primo;
+    }
+    
+    String desencriptacion(int clave, String mensaje){
+        char[] m = mensaje.toCharArray();
+        int god = descomposicionPrima(clave);
+        for(int i=0;i<m.length;i++){
+            //El separador  lo deja intacto
+            if(m[i]!=';'){
+               int indice=buscarIndice(m[i]);
+                //Porque hay 36 caracteres
+                indice=(indice-god)%36;
+                m[i]= letras[indice]; 
+            }
+            
+        }
+        return m.toString();
     }
     
     void iniciarTurnos(){
@@ -58,50 +172,78 @@ public class ServidorHilo implements Runnable{
     @Override
     public void run() {
         try {
+            System.out.println("Llega al Run del hilo servidor");
             inA = new DataInputStream(socketA.getInputStream());
             outA = new DataOutputStream(socketA.getOutputStream());
             inB = new DataInputStream(socketB.getInputStream());
             outB = new DataOutputStream(socketB.getOutputStream());
             
             String msg = "";
+            int clave;
             if(figuraA==1){
+                
                 msg += "JUEGAS: " + ("X;"+true);
+                System.out.println("A-Sin Enc: "+msg);
+                clave= generarClave();
+                msg=encriptar(clave, msg)+";"+clave;
+                System.out.println("A-Enc: "+msg);
                 outA.writeUTF(msg);
                 msg="";
                 msg += "JUEGAS: " + ("O;"+false);
+                System.out.println("B-Sin Enc: "+msg);
+                clave= generarClave();
+                msg=encriptar(clave, msg)+";"+clave;
+                System.out.println("A-Enc: "+msg);
                 outB.writeUTF(msg);
+                //System.out.println("Letras tamaño "+letras.length);
             }
             else{
                 msg += "JUEGAS: " + ("O;"+true);
+                clave= generarClave();
+                msg=encriptar(clave, msg)+";"+clave;
                 outA.writeUTF(msg);
                 msg="";
                 msg += "JUEGAS: " + ("X;"+false);
+                clave= generarClave();
+                msg=encriptar(clave, msg)+";"+clave;
                 outB.writeUTF(msg);
             }
             
 
             while (true) {
+                
                 //-------------------
                 //---------TURNO A
                 //-------------------
                 if(turno){
                    
                     String recibidosA = inA.readUTF();
+                    String[] recibidoA = recibidosA.split(";");
                     
-                    if (recibidosA.equals("Reiniciar")) {
-                        vaciarMatriz();                    
-                        outA.writeUTF("Reiniciar");
-                        outB.writeUTF("Reiniciar");
+                    //--Desencriptación
+                    
+                    //--
+                    
+                    if (recibidoA.length==2) {
+                        vaciarMatriz();
+                        msg="Reiniciar";
+                        clave= generarClave();
+                        msg=encriptar(clave, msg)+";"+clave;
+                        outA.writeUTF(msg);
+                        clave= generarClave();
+                        msg="Reiniciar";
+                        msg=encriptar(clave, msg)+";"+clave;
+                        outB.writeUTF(msg);
                         iniciarTurnos();
                     }
                     else {//Flujo normal de juego
-                        String recibidoA[] = recibidosA.split(";");
-                        
-
+                        //String recibidoA[] = recibidosA.split(";");
+                        recibidoA[0]=desencriptacion(Integer.parseInt(recibidoA[2]), recibidoA[0]);
+                        recibidoA[1]=desencriptacion(Integer.parseInt(recibidoA[2]), recibidoA[1]);
                         /*
                          recibido[0] : fila del tablero
                          recibido[1] : columna del tablero
-
+                         recibido[2] : clave
                          */
                         int fila = Integer.parseInt(recibidoA[0]);
                         int columna = Integer.parseInt(recibidoA[1]);
@@ -111,8 +253,9 @@ public class ServidorHilo implements Runnable{
                          X : 1
                          O : 0
                          */
-                        matriz[fila][columna] = figuraA;
                         System.out.println("Oh yeahh i:"+fila+" j:"+columna+" figura:"+figuraA);
+                        matriz[fila][columna] = figuraA;
+                        
                         String cad = "";
                         cad += figuraA + ";";
                         cad += fila + ";";
@@ -132,7 +275,11 @@ public class ServidorHilo implements Runnable{
 
                         
                         //Propaga el resultado
-                        outA.writeUTF(cad);                           
+                        clave= generarClave();
+                        String cad1=encriptar(clave, cad)+";"+clave;
+                        outA.writeUTF(cad1);
+                        clave= generarClave();
+                        cad1=encriptar(clave, cad)+";"+clave;
                         outB.writeUTF(cad);
                         
                     }
@@ -144,19 +291,26 @@ public class ServidorHilo implements Runnable{
                 else{
                     
                     String recibidosB = inB.readUTF();
-                   
-                    if (recibidosB.equals("Reiniciar")) {
-                        vaciarMatriz();                    
-                        outA.writeUTF("Reiniciar");
-                        outB.writeUTF("Reiniciar");                    
+                    String[] recibidoB = recibidosB.split(";");
+                    if (recibidoB.length==2) {
+                        vaciarMatriz();
+                        msg="Reiniciar";
+                        clave= generarClave();
+                        msg=encriptar(clave, msg)+";"+clave;
+                        outA.writeUTF(msg);
+                        msg="Reiniciar";
+                        clave= generarClave();
+                        msg=encriptar(clave, msg)+";"+clave;
+                        outB.writeUTF(msg);                    
                     }
                     else {//Flujo normal de juego                  
-                        String recibidoB[] = recibidosB.split(";");
-
+                        //String recibidoB[] = recibidosB.split(";");
+                        recibidoB[0]=desencriptacion(Integer.parseInt(recibidoB[2]), recibidoB[0]);
+                        recibidoB[1]=desencriptacion(Integer.parseInt(recibidoB[2]), recibidoB[1]);
                         /*
                          recibido[0] : fila del tablero
                          recibido[1] : columna del tablero
-
+                         recibido[2] : clave
                          */
                         int fila = Integer.parseInt(recibidoB[0]);
                         int columna = Integer.parseInt(recibidoB[1]);
@@ -166,6 +320,7 @@ public class ServidorHilo implements Runnable{
                          X : 1
                          O : 0
                          */
+                        System.out.println("Oh yeahh i:"+fila+" j:"+columna+" figura:"+figuraB);
                         matriz[fila][columna] = figuraB;
                        
                         String cad = "";
@@ -186,9 +341,12 @@ public class ServidorHilo implements Runnable{
                         }
 
                         
-                            
-                            outA.writeUTF(cad);
-                            outB.writeUTF(cad);
+                            clave= generarClave();
+                            String cad1=encriptar(clave, cad)+";"+clave;
+                            outA.writeUTF(cad1);
+                            clave= generarClave();
+                            cad1=encriptar(clave, cad)+";"+clave;
+                            outB.writeUTF(cad1);
                         
                     }
                     
