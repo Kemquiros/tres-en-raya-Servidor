@@ -8,14 +8,19 @@ package triquisocketsservidor;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author usuario
  */
 public class TriquiSocketsServidor {
+
+   
+
+    
     //Inicializamos el puerto
-    private final int puerto = 2027;
+    private int puerto ;
     //Numero maximo de conexiones (el tictactoe es un juego para 2)
     private final int noConexiones = 2;
     //Creamos una lista de sockets para guardar el socket de cada jugador
@@ -26,15 +31,20 @@ public class TriquiSocketsServidor {
     private final int G[][] = new int[3][3];
     //Numero de veces que se juega...para controlar las X y O
     private int turnos = 1;
+    PantallaServidor pantallaServidor;
 
-    /**
-     * @param args the command line arguments
-     */
+    
+    public TriquiSocketsServidor(int _puerto,PantallaServidor _pantallaServidor) {
+        this.puerto= _puerto;
+        this.pantallaServidor=_pantallaServidor;
+    }
+    /*
     public static void main(String[] args) {
         // TODO code application logic here
         TriquiSocketsServidor servidor= new TriquiSocketsServidor();
         servidor.escuchar();
     }
+    */
     
      //Funcion para que el servidor empieze a recibir conexiones de clientes
     public void escuchar(){
@@ -46,9 +56,19 @@ public class TriquiSocketsServidor {
                 }
             }
             //Creamos el socket servidor
-            ServerSocket servidor = new ServerSocket(puerto,noConexiones);
+            ServerSocket servidor=null;
+            try{
+                servidor= new ServerSocket(puerto,noConexiones);
+            }
+            catch(Exception e){
+                
+                JOptionPane.showMessageDialog(null, "El servidor no puede iniciar:"+e.getMessage());
+                System.exit(0);
+            }
+             
             //Ciclo infinito para estar escuchando por nuevos jugadores
-            System.out.println("Esperando jugadores....");
+            
+            pantallaServidor.enviarMensaje("Esperando jugadores");
             while(true){
                     //Cuando un jugador se conecte guardamos el socket en nuestra lista
                     Socket cliente = servidor.accept();
