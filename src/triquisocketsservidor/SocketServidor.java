@@ -27,7 +27,8 @@ public class SocketServidor implements Runnable {
     private ArrayList partidas;
     ServidorMenu pantallaServidor;
     int[] primos = new int[2000];
-    char[] letras={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9'};
+    //37 caracteres
+    char[] letras={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9',':',' '};
 
     public SocketServidor(int _puerto, ServidorMenu _pantallaServidor) {
         System.out.println("Construye el socket del servidor");

@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import javax.swing.JOptionPane;
 
@@ -51,29 +52,49 @@ public class ServidorHilo implements Runnable{
     
     //Encripta un mensaje con una clave
     String encriptar(int clave, String mensaje){
-        System.out.println("Ingresa a encriptar ServidorHilo");
+        System.out.println("Ingresa a encriptar ServidorHilo mensaje:"+mensaje);
+        mensaje=mensaje.toLowerCase();
         char[] m = mensaje.toCharArray();
-        System.out.println("Ingresa a Descomposición prima con clave:"+clave);
+        //try {
+            
+        
+        
+        //System.out.println("Ingresa a Descomposición prima con clave:"+clave);
         int god = descomposicionPrima(clave);
         System.out.println("Clave: "+clave+"  DescomPrima: "+god);
         for(int i=0;i<m.length;i++){
             //El separador  lo deja intacto
             if(m[i]!=';'){
+               System.out.println("-Indice original: "+i + " Caracter:"+m[i]);
                int indice=buscarIndice(m[i]);
+               if(indice==-1){
+                   System.out.println("Error: no se encuentra el indice:"+indice);
+                   
+               }
+                System.out.print("  Indice busqueda: "+indice+" Caracter Busqueda: "+letras[indice]);
                 //Porque hay 36 caracteres
-                indice=(indice+god)%36;
-                m[i]= letras[indice]; 
+               
+                int indice1=((indice+god)%letras.length);
+                System.out.println(" Nuevo indice: "+indice1+" Nuevo Caracter:"+letras[indice1]+" god:"+god+" i+g:"+(indice+god)+" leng:"+letras.length+" mod:" +((indice+god)%letras.length));
+                m[i]= letras[indice1]; 
             }
             
+        //}
+        System.out.println("Sale de encriptar mensaje:"+Arrays.toString(m));
+        
+        //} catch (Exception e) {
+        //    System.out.println("Herror:"+e.getMessage());
         }
-        System.out.println("Sale de encriptar");
-        return m.toString();
+        return new String(m);
     }
     
-    int buscarIndice(char c){        
+    int buscarIndice(char c){
+        System.out.println("Busca: "+c);
         for(int i=0;i<letras.length;i++){
             //Encuentra el indice
+            System.out.println("Compara "+letras[i]+" con "+c);
             if(letras[i]==c){
+                System.out.print("  Encuentra: "+letras[i]);
                 return i;
             }
         }
@@ -141,19 +162,41 @@ public class ServidorHilo implements Runnable{
     }
     
     String desencriptacion(int clave, String mensaje){
+        
+        System.out.println("Ingresa a encriptar ServidorHilo mensaje:"+mensaje);
+        mensaje=mensaje.toLowerCase();
         char[] m = mensaje.toCharArray();
+        //try {
+            
+        
+        
+        //System.out.println("Ingresa a Descomposición prima con clave:"+clave);
         int god = descomposicionPrima(clave);
+        System.out.println("Clave: "+clave+"  DescomPrima: "+god);
         for(int i=0;i<m.length;i++){
             //El separador  lo deja intacto
             if(m[i]!=';'){
+               System.out.println("-Indice original: "+i + " Caracter:"+m[i]);
                int indice=buscarIndice(m[i]);
+               if(indice==-1){
+                   System.out.println("Error: no se encuentra el indice:"+indice);
+                   
+               }
+                System.out.print("  Indice busqueda: "+indice+" Caracter Busqueda: "+letras[indice]);
                 //Porque hay 36 caracteres
-                indice=(indice-god)%36;
-                m[i]= letras[indice]; 
+               
+                int indice1=((indice-god)%letras.length);
+                System.out.println(" Nuevo indice: "+indice1+" Nuevo Caracter:"+letras[indice1]+" god:"+god+" i+g:"+(indice+god)+" leng:"+letras.length+" mod:" +((indice+god)%letras.length));
+                m[i]= letras[indice1]; 
             }
             
+        //}
+        System.out.println("Sale de encriptar mensaje:"+Arrays.toString(m));
+        
+        //} catch (Exception e) {
+        //    System.out.println("Herror:"+e.getMessage());
         }
-        return m.toString();
+        return new String(m);
     }
     
     void iniciarTurnos(){
@@ -185,22 +228,22 @@ public class ServidorHilo implements Runnable{
                 msg += "JUEGAS: " + ("X;"+true);
                 System.out.println("A-Sin Enc: "+msg);
                 clave= generarClave();
-                msg=encriptar(clave, msg)+";"+clave;
+                msg=encriptar(clave, msg.toLowerCase())+";"+clave;
                 System.out.println("A-Enc: "+msg);
                 outA.writeUTF(msg);
                 msg="";
                 msg += "JUEGAS: " + ("O;"+false);
-                System.out.println("B-Sin Enc: "+msg);
+                System.out.println("B-Sin Enc: "+msg.toLowerCase());
                 clave= generarClave();
-                msg=encriptar(clave, msg)+";"+clave;
-                System.out.println("A-Enc: "+msg);
+                msg=encriptar(clave, msg.toLowerCase())+";"+clave;
+                System.out.println("A-Enc: "+msg.toLowerCase());
                 outB.writeUTF(msg);
                 //System.out.println("Letras tamaño "+letras.length);
             }
             else{
                 msg += "JUEGAS: " + ("O;"+true);
                 clave= generarClave();
-                msg=encriptar(clave, msg)+";"+clave;
+                msg=encriptar(clave, msg.toLowerCase())+";"+clave;
                 outA.writeUTF(msg);
                 msg="";
                 msg += "JUEGAS: " + ("X;"+false);
